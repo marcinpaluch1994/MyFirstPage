@@ -1,6 +1,6 @@
 document.getElementById('get-data').addEventListener('click', async () => {
     try {
-        const response = await fetch('http://localhost:3000/random-poem');
+        const response = await fetch('https://56cc-194-230-148-121.ngrok-free.app');
         const data = await response.json();
         document.getElementById('output').textContent = data.poem;
     } catch (error) {
