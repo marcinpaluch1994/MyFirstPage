@@ -1,6 +1,6 @@
 document.getElementById('get-data').addEventListener('click', async () => {
     try {
-        const response = await fetch('https://56cc-194-230-148-121.ngrok-free.app');
+        const response = await fetch('https://fb40-194-230-148-121.ngrok-free.app');
         const data = await response.json();
         document.getElementById('output').textContent = data.poem;
     } catch (error) {
