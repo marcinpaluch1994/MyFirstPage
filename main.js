@@ -1,6 +1,9 @@
 document.getElementById('get-data').addEventListener('click', async () => {
     try {
-        const response = await fetch('https://fb40-194-230-148-121.ngrok-free.app');
+        const response = await fetch('https://fb40-194-230-148-121.ngrok-free.app/random-poem');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         document.getElementById('output').textContent = data.poem;
     } catch (error) {
