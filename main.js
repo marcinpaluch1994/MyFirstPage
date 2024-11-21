@@ -5,6 +5,6 @@ document.getElementById('get-data').addEventListener('click', async () => {
         document.getElementById('output').textContent = data.poem;
     } catch (error) {
         console.error('Error fetching ChatGPT output:', error);
-        document.getElementById('output').textContent = 'Failed to fetch ChatGPT output.';
+        document.getElementById('output').textContent = 'Failed to fetch ChatGPT output. So sorry!';
     }
 });
