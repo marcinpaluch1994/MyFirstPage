@@ -13,28 +13,14 @@ const PORT = process.env.PORT || 3000;
 
 // Enable CORS for requests only from your GitHub Pages site
 app.use(cors({
-    origin: function (origin, callback) {
-        // Log the origin to see exactly what value is being sent by the browser.
-        console.log("Incoming request with Origin:", origin);
-
-        // Allow requests with no origin (mobile apps, curl, etc.) or if the origin starts with the allowed URL.
-        if (!origin || origin.startsWith('https://marcinpaluch1994.github.io')) {
-            callback(null, true);
-        } else {
-            console.error(`CORS Error: Request from origin ${origin} is not allowed.`);
-            callback(new Error(`Not allowed by CORS: ${origin}`));
-        }
-    }
+    origin: 'https://marcinpaluch1994.github.io', // Allow only your GitHub Pages site
 }));
-
-console.log(`Started.`);
 
 // Middleware to parse JSON bodies (optional, useful for POST requests)
 app.use(express.json());
 
 // Endpoint to fetch a response from ChatGPT via direct API call using axios
 app.get('/random-poem', async (req, res) => {
-    console.log("Request headers:", req.headers);
     try {
         // Make a POST request directly to OpenAI's chat completions API
         const apiResponse = await axios.post(
