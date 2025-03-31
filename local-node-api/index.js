@@ -6,28 +6,41 @@ dotenv.config();
 
 const express = require('express');
 const cors = require('cors');
-const axios = require('axios'); // New dependency to replace openai package
+const axios = require('axios');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Enable CORS for requests only from your GitHub Pages site
+// Enable CORS for requests from anywhere (for debugging).
+// Later you can lock it down to your GitHub Pages domain if you like.
 app.use(cors({
     origin: '*'
 }));
 
-
-// Middleware to parse JSON bodies (optional, useful for POST requests)
+// Middleware to parse JSON bodies
 app.use(express.json());
 
-// Endpoint to fetch a response from ChatGPT via direct API call using axios
+// Quick log to confirm the server and the environment key:
+console.log("========================================");
+console.log("Starting Express server with the following config:");
+console.log("PORT:", PORT);
+console.log("OpenAI Key present?", process.env.OPENAI_API_KEY ? "Yes" : "No");
+console.log("========================================");
+
+// Additional debugging route to confirm server is alive
+app.get('/ping', (req, res) => {
+    console.log("Received /ping request from", req.headers['user-agent']);
+    res.json({ message: 'pong', time: new Date().toISOString() });
+});
+
 app.get('/random-poem', async (req, res) => {
+    console.log("Received /random-poem request from", req.headers['user-agent']);
     try {
         // Make a POST request directly to OpenAI's chat completions API
         const apiResponse = await axios.post(
-            'https://api.openai.com/v1/chat/completions', // OpenAI endpoint
+            'https://api.openai.com/v1/chat/completions',
             {
-                model: 'gpt-3.5-turbo', // Using the gpt-3.5-turbo model
+                model: 'gpt-3.5-turbo',
                 messages: [
                     {
                         role: 'user',
@@ -38,21 +51,29 @@ app.get('/random-poem', async (req, res) => {
             {
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${process.env.OPENAI_API_KEY}` // Use your API key from .env
+                    'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
                 }
             }
         );
 
-        // Extract the ChatGPT response from the API response
+        console.log("OpenAI response status:", apiResponse.status);
+        console.log("OpenAI response data:", apiResponse.data);
+
+        // Extract the ChatGPT response
         const poem = apiResponse.data.choices[0].message.content;
         res.json({ poem });
     } catch (error) {
-        console.error('Error fetching poem:', error.response ? error.response.status : error.message);
+        console.error('Error fetching poem from OpenAI:');
+        if (error.response) {
+            console.error('Status:', error.response.status);
+            console.error('Data:', error.response.data);
+        } else {
+            console.error(error.message);
+        }
         res.status(500).json({ error: 'Failed to fetch poem' });
     }
 });
 
-// Start the Express server
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
