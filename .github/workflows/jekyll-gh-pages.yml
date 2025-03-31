@@ -37,6 +37,8 @@ jobs:
           destination: ./_site
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
+        with:
+          name: github-pages-${{ github.run_id }}
 
   # Deployment job
   deploy:

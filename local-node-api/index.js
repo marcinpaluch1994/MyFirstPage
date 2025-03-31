@@ -13,8 +13,9 @@ const PORT = process.env.PORT || 3000;
 
 // Enable CORS for requests only from your GitHub Pages site
 app.use(cors({
-    origin: 'https://marcinpaluch1994.github.io', // Allow only your GitHub Pages site
+    origin: '*'
 }));
+
 
 // Middleware to parse JSON bodies (optional, useful for POST requests)
 app.use(express.json());
