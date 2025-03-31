@@ -3,7 +3,7 @@
 document.getElementById('get-data').addEventListener('click', async () => {
     console.log("Button clicked!");
     try {
-        const response = await fetch('https://a458-194-230-148-34.ngrok-free.app/random-poem');
+        const response = await fetch(' https://52c3-194-230-148-34.ngrok-free.app');
         console.log("Response received:", response);
         // Get the raw text response first to inspect it
         const text = await response.text();

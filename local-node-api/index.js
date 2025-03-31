@@ -34,6 +34,7 @@ app.use(express.json());
 
 // Endpoint to fetch a response from ChatGPT via direct API call using axios
 app.get('/random-poem', async (req, res) => {
+    console.log("Request headers:", req.headers);
     try {
         // Make a POST request directly to OpenAI's chat completions API
         const apiResponse = await axios.post(
