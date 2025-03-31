@@ -14,16 +14,19 @@ const PORT = process.env.PORT || 3000;
 // Enable CORS for requests only from your GitHub Pages site
 app.use(cors({
     origin: function (origin, callback) {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin || origin === 'https://marcinpaluch1994.github.io') {
+        // Log the origin to see exactly what value is being sent by the browser.
+        console.log("Incoming request with Origin:", origin);
+
+        // Allow requests with no origin (mobile apps, curl, etc.) or if the origin starts with the allowed URL.
+        if (!origin || origin.startsWith('https://marcinpaluch1994.github.io')) {
             callback(null, true);
         } else {
-            // Log and return an error with the problematic origin
             console.error(`CORS Error: Request from origin ${origin} is not allowed.`);
             callback(new Error(`Not allowed by CORS: ${origin}`));
         }
     }
 }));
+
 console.log(`Started.`);
 
 // Middleware to parse JSON bodies (optional, useful for POST requests)
