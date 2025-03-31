@@ -1,6 +1,6 @@
 document.getElementById('get-data').addEventListener('click', async () => {
     try {
-        const response = await fetch('https://fb40-194-230-148-121.ngrok-free.app/random-poem');
+        const response = await fetch('https://4557-194-230-148-34.ngrok-free.app/random-poem');
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
