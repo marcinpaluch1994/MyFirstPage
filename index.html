@@ -1,18 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Page</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Medical Report Generator</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <h1>Medical Report Generator</h1>
-    <button id="get-data">Fetch Data</button>
-    <div id="output"></div>
-    <!-- Extra debug area -->
-    <pre id="debug"></pre>
+  <h1>Medical Report Generator</h1>
 
-    <script src="main.js"></script>
+  <!-- File upload -->
+  <label for="pdfFile">Upload Doctor's Log (PDF):</label>
+  <input type="file" id="pdfFile" accept="application/pdf" />
+
+  <br/><br/>
+
+  <!-- Buttons to proceed in steps -->
+  <button id="btnDraft">1) Draft First Version</button>
+  <button id="btnVerify" disabled>2) Verify/Correct</button>
+  <button id="btnGeneratePdf" disabled>3) Generate PDF</button>
+
+  <br/><br/>
+
+  <!-- Progress / Status messages -->
+  <div id="status">Awaiting PDF upload...</div>
+
+  <!-- Where results go -->
+  <h2>Draft Report</h2>
+  <div id="draftReport" class="report-box"></div>
+
+  <h2>Verified Report</h2>
+  <div id="verifiedReport" class="report-box"></div>
+
+  <!-- Extra debug area -->
+  <pre id="debug"></pre>
+
+  <script src="main.js"></script>
 </body>
 </html>
