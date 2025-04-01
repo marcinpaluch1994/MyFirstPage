@@ -7,7 +7,7 @@
   Example:
     const SERVER_URL = "https://some-lt-url.loca.lt";
 ***********************************************************************/
-const SERVER_URL = "http://localhost:3000"; // <-- UPDATE AS NEEDED
+const SERVER_URL = "https://two-jeans-cough.loca.lt"; // <-- UPDATE AS NEEDED
 
 /***********************************************************************
   REST OF THE SCRIPT
