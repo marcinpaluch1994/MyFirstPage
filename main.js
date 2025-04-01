@@ -2,7 +2,7 @@ document.getElementById('get-data').addEventListener('click', async () => {
     const debugEl = document.getElementById('debug');
     debugEl.textContent = ''; // Clear old debug info
 
-    const url = 'https://e4a1-194-230-148-34.ngrok-free.app/random-poem'; // double-check this matches what ngrok shows
+    const url = 'https://modern-flowers-float.loca.lt/random-poem';
     debugEl.textContent += `Attempting fetch to: ${url}\n`;
 
     try {
