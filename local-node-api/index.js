@@ -1,4 +1,3 @@
-// index.js
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
@@ -39,9 +38,16 @@ app.post('/generate-report-pdf', upload.single('pdfFile'), async (req, res) => {
       return res.status(400).json({ error: 'No PDF file uploaded.' });
     }
 
-    // 1) Extract text from PDF
-    const pdfData = await pdfParse(req.file.buffer);
-    const pdfLog = pdfData.text || '';
+    // 1) Extract text from PDF (handle parse errors)
+    let pdfLog = '';
+    try {
+      const pdfData = await pdfParse(req.file.buffer);
+      pdfLog = pdfData.text || '';
+    } catch (parseError) {
+      console.error('Error parsing PDF:', parseError);
+      // In case of parse errors, we proceed with an empty log
+      pdfLog = '';
+    }
 
     // 2) Call ChatGPT to get first draft
     const draftPrompt = `
@@ -50,6 +56,7 @@ ${pdfLog}
 
 Not a list of actions but rather a coherent text. Use formal, clinical language, as if a specialist doctor would write for another specialist doctor taking over the patient. Be concise, but make sure to include all information about actions taken by the doctor.
 `;
+
     const draftResponse = await axios.post(
       'https://api.openai.com/v1/chat/completions',
       {
@@ -63,11 +70,13 @@ Not a list of actions but rather a coherent text. Use formal, clinical language,
         }
       }
     );
+
     const draftReport = draftResponse.data.choices[0].message.content;
 
     // 3) Call ChatGPT to verify/correct the draft
     const verifyPrompt = `
 Check if the attached log and following report are consistent. If not, correct the report.
+
 Log:
 ${pdfLog}
 
@@ -89,22 +98,26 @@ ${draftReport}
     );
     const verifiedReport = verifyResponse.data.choices[0].message.content;
 
-    // 4) Generate a PDF from the verified text
+    // 4) Generate PDF from the verified text
     const doc = new PDFDocument();
     const tempFilePath = path.join(__dirname, 'temp_report.pdf');
     const writeStream = fs.createWriteStream(tempFilePath);
+
     doc.pipe(writeStream);
 
-    doc.fontSize(14).text('Medical Report', { align: 'center' });
+    doc.fontSize(16).text('Medical Report', { align: 'center' });
     doc.moveDown();
-    doc.fontSize(11).text(verifiedReport, { align: 'left' });
+    doc.fontSize(12).text(verifiedReport, { align: 'left' });
     doc.end();
 
     // Once PDF is written, send it
     writeStream.on('finish', () => {
       res.sendFile(tempFilePath, (err) => {
+        // Clean up temporary file
         if (!err) {
           fs.unlinkSync(tempFilePath);
+        } else {
+          console.error('Error sending PDF file:', err);
         }
       });
     });

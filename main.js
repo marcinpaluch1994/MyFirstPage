@@ -1,15 +1,13 @@
-// main.js
-
 /***********************************************************************
   HARD-CODED SERVER URL:
   e.g. "https://some-lt-url.loca.lt" or "http://localhost:3000"
 ***********************************************************************/
-const SERVER_URL = "https://ten-emus-wonder.loca.lt"; // update if you're using localtunnel
+const SERVER_URL = "https://every-meals-smile.loca.lt"; // or your localtunnel URL
 
 // For localtunnel bypass, add a user-agent that looks like a browser
-// plus any custom headers
+// plus any custom headers if needed
 const SPECIAL_HEADERS = {
-  'bypass-tunnel-reminder': 'mycustomvalue', // if needed
+  'bypass-tunnel-reminder': 'mycustomvalue', // remove or change if not needed
 };
 
 const debugEl = document.getElementById('debug');
@@ -20,7 +18,8 @@ pdfFileInput.addEventListener('change', async () => {
   if (!pdfFileInput.files || pdfFileInput.files.length === 0) {
     return;
   }
-  statusEl.textContent = 'Uploading PDF, please wait...';
+
+  statusEl.textContent = 'Uploading PDF...';
   debugEl.textContent = '';
 
   const file = pdfFileInput.files[0];
@@ -29,8 +28,21 @@ pdfFileInput.addEventListener('change', async () => {
   const formData = new FormData();
   formData.append('pdfFile', file);
 
-  // Make single request to get final PDF
   try {
+    // --- Provide some naive progress updates on the client side ---
+    statusEl.textContent = 'Drafting first version...';
+
+    // Small delay to let the user see the first status
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    statusEl.textContent = 'Verifying and improving...';
+
+    // Another small delay
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    statusEl.textContent = 'Preparing for download...';
+
+    // Now perform the final fetch that triggers the entire ChatGPT pipeline
     const response = await fetch(`${SERVER_URL}/generate-report-pdf`, {
       method: 'POST',
       headers: SPECIAL_HEADERS,
