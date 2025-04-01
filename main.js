@@ -1,120 +1,132 @@
 // main.js
+
+/***********************************************************************
+  HARD-CODED SERVER (LOCALTUNNEL) URL:
+
+  Update this to point to your actual server address.
+  Example:
+    const SERVER_URL = "https://some-lt-url.loca.lt";
+***********************************************************************/
+const SERVER_URL = "http://localhost:3000"; // <-- UPDATE AS NEEDED
+
+/***********************************************************************
+  REST OF THE SCRIPT
+***********************************************************************/
+
 const debugEl = document.getElementById('debug');
 const statusEl = document.getElementById('status');
-
 const draftReportEl = document.getElementById('draftReport');
 const verifiedReportEl = document.getElementById('verifiedReport');
-
-let pdfLog = '';        // Extracted text from uploaded PDF
-let draftReport = '';   // First draft from ChatGPT
-let verifiedReport = ''; // Verified/corrected version
-
-// Buttons
-const btnDraft = document.getElementById('btnDraft');
-const btnVerify = document.getElementById('btnVerify');
-const btnGeneratePdf = document.getElementById('btnGeneratePdf');
-
-// PDF file input
 const pdfFileInput = document.getElementById('pdfFile');
 
-// Step 1: Draft the first version
-btnDraft.addEventListener('click', async () => {
-  debugEl.textContent = '';
+// Whenever the user selects a PDF file, automatically run the pipeline
+pdfFileInput.addEventListener('change', () => {
   if (!pdfFileInput.files || pdfFileInput.files.length === 0) {
-    alert('Please select a PDF file first.');
+    return;
+  }
+  startPipeline();
+});
+
+async function startPipeline() {
+  debugEl.textContent = '';
+  draftReportEl.textContent = '';
+  verifiedReportEl.textContent = '';
+
+  const file = pdfFileInput.files[0];
+  if (!file) {
+    statusEl.textContent = 'No file selected!';
     return;
   }
 
+  // 1) Draft
   statusEl.textContent = 'Drafting first version...';
+  const draftResponseData = await doDraft(file);
+  if (!draftResponseData) {
+    statusEl.textContent = 'Error during drafting. Check debug logs.';
+    return;
+  }
+  const { draftReport, pdfLog } = draftResponseData;
+  draftReportEl.textContent = draftReport;
 
-  const file = pdfFileInput.files[0];
+  // 2) Verify
+  statusEl.textContent = 'Verifying and improving...';
+  const verifyResponseData = await doVerify(pdfLog, draftReport);
+  if (!verifyResponseData) {
+    statusEl.textContent = 'Error during verification. Check debug logs.';
+    return;
+  }
+  const { verifiedReport } = verifyResponseData;
+  verifiedReportEl.textContent = verifiedReport;
+
+  // 3) Generate PDF
+  statusEl.textContent = 'Preparing for download...';
+  const pdfResult = await doGeneratePdf(verifiedReport);
+  if (!pdfResult) {
+    statusEl.textContent = 'Error generating PDF. Check debug logs.';
+    return;
+  }
+
+  statusEl.textContent = 'PDF generated and downloaded!';
+}
+
+// Helper: Step 1 (POST /draft)
+async function doDraft(file) {
   const formData = new FormData();
   formData.append('pdfFile', file);
 
   try {
-    const response = await fetch('/draft', {
+    const response = await fetch(`${SERVER_URL}/draft`, {
       method: 'POST',
       body: formData
     });
     if (!response.ok) {
-      throw new Error(`Server error: ${response.statusText}`);
+      throw new Error(`Draft step error: ${response.statusText}`);
     }
-
     const data = await response.json();
-    pdfLog = data.pdfLog;
-    draftReport = data.draftReport;
-
-    draftReportEl.textContent = draftReport;
-    statusEl.textContent = 'Draft completed.';
-    debugEl.textContent = JSON.stringify(data, null, 2);
-
-    // Enable "Verify" button
-    btnVerify.disabled = false;
-    btnGeneratePdf.disabled = true;
-
+    debugEl.textContent += `Draft response:\n${JSON.stringify(data, null, 2)}\n`;
+    return data;
   } catch (err) {
     console.error(err);
-    debugEl.textContent += '\n' + err.toString();
-    statusEl.textContent = 'Failed to draft report.';
+    debugEl.textContent += `\n${err.toString()}\n`;
+    return null;
   }
-});
+}
 
-// Step 2: Verify/Correct the draft
-btnVerify.addEventListener('click', async () => {
-  statusEl.textContent = 'Verifying and improving...';
-  verifiedReportEl.textContent = '';
-  debugEl.textContent = '';
-
+// Helper: Step 2 (POST /verify)
+async function doVerify(pdfLog, draftReport) {
   try {
-    const response = await fetch('/verify', {
+    const response = await fetch(`${SERVER_URL}/verify`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        pdfLog,
-        draftReport
-      })
+      body: JSON.stringify({ pdfLog, draftReport })
     });
     if (!response.ok) {
-      throw new Error(`Server error: ${response.statusText}`);
+      throw new Error(`Verify step error: ${response.statusText}`);
     }
-
     const data = await response.json();
-    verifiedReport = data.verifiedReport;
-
-    verifiedReportEl.textContent = verifiedReport;
-    statusEl.textContent = 'Verification completed.';
-    debugEl.textContent = JSON.stringify(data, null, 2);
-
-    // Enable "Generate PDF" button
-    btnGeneratePdf.disabled = false;
-
+    debugEl.textContent += `Verify response:\n${JSON.stringify(data, null, 2)}\n`;
+    return data;
   } catch (err) {
     console.error(err);
-    debugEl.textContent += '\n' + err.toString();
-    statusEl.textContent = 'Failed to verify report.';
+    debugEl.textContent += `\n${err.toString()}\n`;
+    return null;
   }
-});
+}
 
-// Step 3: Generate PDF
-btnGeneratePdf.addEventListener('click', async () => {
-  statusEl.textContent = 'Preparing for download...';
-  debugEl.textContent = '';
-
+// Helper: Step 3 (POST /generate-pdf)
+async function doGeneratePdf(verifiedReport) {
   try {
-    // We'll POST the verified text and expect a PDF file back
-    const response = await fetch('/generate-pdf', {
+    const response = await fetch(`${SERVER_URL}/generate-pdf`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ verifiedReport })
     });
-
     if (!response.ok) {
-      throw new Error(`Server error: ${response.statusText}`);
+      throw new Error(`Generate PDF step error: ${response.statusText}`);
     }
 
-    // We expect a PDF, so read as Blob
+    // Expect PDF, so read as Blob
     const blob = await response.blob();
-
     // Create a link to download the PDF
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -124,10 +136,10 @@ btnGeneratePdf.addEventListener('click', async () => {
     link.click();
     document.body.removeChild(link);
 
-    statusEl.textContent = 'PDF generated and downloaded!';
+    return true;
   } catch (err) {
     console.error(err);
-    debugEl.textContent += '\n' + err.toString();
-    statusEl.textContent = 'Failed to generate PDF.';
+    debugEl.textContent += `\n${err.toString()}\n`;
+    return null;
   }
-});
+}

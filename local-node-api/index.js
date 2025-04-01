@@ -14,9 +14,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Enable CORS for all origins (adjust if needed)
-app.use(cors({
-    origin: '*'
-}));
+app.use(cors({ origin: '*' }));
 
 // Parse JSON bodies
 app.use(express.json());
@@ -81,8 +79,7 @@ Not a list of actions but rather a coherent text. Use formal, clinical language,
 
     const draftText = draftResponse.data.choices[0].message.content;
 
-    // Return draft text and also include the extracted log in the response
-    // so we can pass it along to the next step
+    // Return draft text + the extracted log text
     res.json({
       draftReport: draftText,
       pdfLog: logText
@@ -90,6 +87,10 @@ Not a list of actions but rather a coherent text. Use formal, clinical language,
 
   } catch (error) {
     console.error('Error generating first draft:', error);
+    if (error.response) {
+      console.error('Status:', error.response.status);
+      console.error('Data:', error.response.data);
+    }
     res.status(500).json({ error: 'Failed to generate first draft' });
   }
 });
@@ -136,6 +137,10 @@ ${draftReport}
     });
   } catch (error) {
     console.error('Error verifying/correcting report:', error);
+    if (error.response) {
+      console.error('Status:', error.response.status);
+      console.error('Data:', error.response.data);
+    }
     res.status(500).json({ error: 'Failed to verify/correct the report' });
   }
 });
@@ -149,16 +154,8 @@ app.post('/generate-pdf', async (req, res) => {
       return res.status(400).json({ error: 'Missing verifiedReport in request body.' });
     }
 
-    // Optionally: ask ChatGPT to "generate a PDF" in text form.
-    // (But usually we just build the PDF ourselves.)
-    // For example:
-    // await axios.post('...') ...
-    // We'll skip that and just proceed.
-
     // Create PDF from the verified text
     const doc = new PDFDocument();
-
-    // We'll create a temporary file path
     const tempFilePath = path.join(__dirname, 'temp_report.pdf');
     const writeStream = fs.createWriteStream(tempFilePath);
 
@@ -166,18 +163,13 @@ app.post('/generate-pdf', async (req, res) => {
 
     doc.fontSize(14).text('Medical Report', { align: 'center' });
     doc.moveDown();
-
-    doc.fontSize(11).text(verifiedReport, {
-      align: 'left'
-    });
+    doc.fontSize(11).text(verifiedReport, { align: 'left' });
 
     doc.end();
 
-    // When the PDF is fully written, send it back
     writeStream.on('finish', () => {
       res.sendFile(tempFilePath, (err) => {
         if (!err) {
-          // Optionally delete temp file after sending
           fs.unlinkSync(tempFilePath);
         }
       });
@@ -185,6 +177,10 @@ app.post('/generate-pdf', async (req, res) => {
 
   } catch (error) {
     console.error('Error generating PDF:', error);
+    if (error.response) {
+      console.error('Status:', error.response.status);
+      console.error('Data:', error.response.data);
+    }
     res.status(500).json({ error: 'Failed to generate PDF' });
   }
 });

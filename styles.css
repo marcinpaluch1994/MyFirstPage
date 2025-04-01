@@ -12,14 +12,8 @@ h1 {
   background: #fff;
   border: 1px solid #ccc;
   padding: 1rem;
-  min-height: 100px;
-}
-
-#status {
-  font-weight: bold;
-  margin-top: 1rem;
+  min-height: 80px;
   margin-bottom: 1rem;
-  color: #333;
 }
 
 #debug {
@@ -27,7 +21,7 @@ h1 {
   background: #eee;
   padding: 1rem;
   max-height: 200px;
-  overflow-y: scroll;
+  overflow-y: auto;
   border: 1px dashed #aaa;
   font-size: 0.9rem;
 }

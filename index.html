@@ -10,22 +10,15 @@
   <h1>Medical Report Generator</h1>
 
   <!-- File upload -->
-  <label for="pdfFile">Upload Doctor's Log (PDF):</label>
+  <label for="pdfFile"><strong>Upload Doctor's Log (PDF):</strong></label>
   <input type="file" id="pdfFile" accept="application/pdf" />
 
-  <br/><br/>
+  <!-- Status text -->
+  <div id="status" style="font-weight: bold; margin: 1rem 0;">
+    Waiting for PDF upload...
+  </div>
 
-  <!-- Buttons to proceed in steps -->
-  <button id="btnDraft">1) Draft First Version</button>
-  <button id="btnVerify" disabled>2) Verify/Correct</button>
-  <button id="btnGeneratePdf" disabled>3) Generate PDF</button>
-
-  <br/><br/>
-
-  <!-- Progress / Status messages -->
-  <div id="status">Awaiting PDF upload...</div>
-
-  <!-- Where results go -->
+  <!-- Intermediate results (not strictly necessary, but might help debugging) -->
   <h2>Draft Report</h2>
   <div id="draftReport" class="report-box"></div>
 
