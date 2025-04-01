@@ -1,25 +1,17 @@
 body {
   font-family: Arial, sans-serif;
   margin: 2rem;
-  background-color: #f2f2f2;
+  background-color: #f0f0f0;
 }
 
 h1 {
   margin-bottom: 1rem;
 }
 
-.report-box {
-  background: #fff;
-  border: 1px solid #ccc;
-  padding: 1rem;
-  min-height: 80px;
-  margin-bottom: 1rem;
-}
-
 #debug {
-  margin-top: 2rem;
   background: #eee;
   padding: 1rem;
+  margin-top: 1rem;
   max-height: 200px;
   overflow-y: auto;
   border: 1px dashed #aaa;

@@ -3,29 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Medical Report Generator</title>
+  <title>Single Request PDF Demo</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <h1>Medical Report Generator</h1>
+  <h1>Single Request: Upload PDF, Get PDF</h1>
 
   <!-- File upload -->
   <label for="pdfFile"><strong>Upload Doctor's Log (PDF):</strong></label>
   <input type="file" id="pdfFile" accept="application/pdf" />
 
-  <!-- Status text -->
-  <div id="status" style="font-weight: bold; margin: 1rem 0;">
+  <div id="status" style="margin:1rem 0; font-weight:bold;">
     Waiting for PDF upload...
   </div>
 
-  <!-- Intermediate results (not strictly necessary, but might help debugging) -->
-  <h2>Draft Report</h2>
-  <div id="draftReport" class="report-box"></div>
-
-  <h2>Verified Report</h2>
-  <div id="verifiedReport" class="report-box"></div>
-
-  <!-- Extra debug area -->
   <pre id="debug"></pre>
 
   <script src="main.js"></script>
