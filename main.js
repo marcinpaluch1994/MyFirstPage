@@ -77,6 +77,10 @@ async function doDraft(file) {
   try {
     const response = await fetch(`${SERVER_URL}/draft`, {
       method: 'POST',
+      headers: {
+        'bypass-tunnel-reminder': 'mycustomvalue',
+        'User-Agent': 'MyFancyScript/1.0 (my custom agent)'
+      },
       body: formData
     });
     if (!response.ok) {
@@ -97,7 +101,11 @@ async function doVerify(pdfLog, draftReport) {
   try {
     const response = await fetch(`${SERVER_URL}/verify`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'bypass-tunnel-reminder': 'mycustomvalue',
+        'User-Agent': 'MyFancyScript/1.0 (my custom agent)'
+      },
       body: JSON.stringify({ pdfLog, draftReport })
     });
     if (!response.ok) {
@@ -118,7 +126,11 @@ async function doGeneratePdf(verifiedReport) {
   try {
     const response = await fetch(`${SERVER_URL}/generate-pdf`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'bypass-tunnel-reminder': 'mycustomvalue',
+        'User-Agent': 'MyFancyScript/1.0 (my custom agent)'
+      },
       body: JSON.stringify({ verifiedReport })
     });
     if (!response.ok) {
