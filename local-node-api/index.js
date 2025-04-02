@@ -99,15 +99,16 @@ app.post('/generate-report-pdf', upload.single('pdfFile'), async (req, res) => {
 
     // 2) Call ChatGPT to get first draft
     const draftPrompt = `
-Generate a summary of doctor actions for a medical report based on this log:
+You are a specialist doctor writing a medical report for another specialist doctor taking over the patient.
+Generate a summary of your actions in a form of a medical report based on this log:
 
 Text from PDF:
 ${pdfText}
 
-Tables from PDF (if relevant):
-${JSON.stringify(pdfTables)}
-
-Not a list of actions but rather a coherent text. Use formal, clinical language, as if a specialist doctor would write for another specialist doctor taking over the patient. Be concise, but make sure to include all information about actions taken by the doctor.
+Don't just return a list of actions but rather write a coherent text. Use formal, clinical language.
+Be concise, include all relevant information. Do not add information not present in the log.
+Don't write any sentences that are not necessary to transmit medical information.
+Don't keep the exact dates and times, unless they are relevant, focus rather on description of the applied treatment.
 `;
 
     // Log the prompt for debugging
@@ -117,7 +118,7 @@ Not a list of actions but rather a coherent text. Use formal, clinical language,
     const draftResponse = await axios.post(
       'https://api.openai.com/v1/chat/completions',
       {
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-4o',
         messages: [ { role: 'user', content: draftPrompt } ]
       },
       {
@@ -134,14 +135,17 @@ Not a list of actions but rather a coherent text. Use formal, clinical language,
 
     // 3) Call ChatGPT to verify/correct the draft
     const verifyPrompt = `
-Check if the attached log (text + tables) and the following report are consistent. 
-Correct any inconsistencies. Return only the verified report, without extra commentary.
+Check if the attached log and the following report are consistent. 
+Correct any inconsistencies.
+In particular make sure that the report does not add any information not present in the log.
+Improve text to make it possibly concise and formal.
+Skip exact dates and times, unless they are relevant.
+Try to shorten the sentences and eliminate sentences that are not necessary to transmit medical information.
+Only one paragraph should result from the verification.
+Return only the verified report, without extra commentary.
 
 Log Text:
 ${pdfText}
-
-Log Tables:
-${JSON.stringify(pdfTables)}
 
 Draft Report:
 ${draftReport}
@@ -152,7 +156,7 @@ ${draftReport}
     const verifyResponse = await axios.post(
       'https://api.openai.com/v1/chat/completions',
       {
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-4o',
         messages: [ { role: 'user', content: verifyPrompt } ]
       },
       {
