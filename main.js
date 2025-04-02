@@ -2,7 +2,7 @@
   HARD-CODED SERVER URL:
   e.g. "https://some-lt-url.loca.lt" or "http://localhost:3000"
 ***********************************************************************/
-const SERVER_URL = "https://every-meals-smile.loca.lt"; // or your localtunnel URL
+const SERVER_URL = "https://busy-boxes-relax.loca.lt"; // or your localtunnel URL
 
 // For localtunnel bypass, add a user-agent that looks like a browser
 // plus any custom headers if needed
